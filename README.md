@@ -71,6 +71,23 @@ Turn it off for one session: `BETTER_PROMPT=off claude`
 
 **Always skipped (0 tokens):** slash commands (`/…`), prompts starting with `*` (bypass) or `#`, system messages, and 1–2 word replies like "ok" or "go ahead".
 
+## C1 words while you wait (optional)
+
+Replace the spinner text ("Thinking…") and the tip under it with C1 vocabulary for developers:
+
+```
+✻ Scrutinizing…
+  C1 · mitigate (v): make less serious. "This patch mitigates the risk of data loss."
+```
+
+```
+/better-prompt:c1-spinner              # install: 30 C1 verbs + 60 C1 tips
+/better-prompt:c1-spinner install --mix   # keep Claude Code's built-in tips too
+/better-prompt:c1-spinner remove       # restore your previous spinner settings
+```
+
+Plugins can't change spinner settings by themselves, so this command writes `spinnerVerbs` and `spinnerTipsOverride` into `~/.claude/settings.json` once (your old values are backed up and restored by `remove`). The command costs 0 tokens until you run it. The word list is in [`data/c1-spinner.json`](plugins/better-prompt/data/c1-spinner.json); edit it and run install again.
+
 ## Cost and speed
 
 - **No extra model call, no waiting.** The hook is a tiny local Python script (~0.03 s) that adds a short instruction. Your session's own model writes the coaching.
