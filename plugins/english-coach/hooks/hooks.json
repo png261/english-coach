@@ -1,5 +1,5 @@
 {
-  "description": "English Coach adds a short English-coaching instruction to each prompt. It calls no model and adds no waiting.",
+  "description": "English Coach adds a short English-coaching instruction to each prompt, and saves the coaching notes locally for /english-coach:review. It calls no model and adds no waiting.",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -9,6 +9,20 @@
             "command": "python3",
             "args": [
               "${CLAUDE_PLUGIN_ROOT}/scripts/coach.py"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/record.py"
             ],
             "timeout": 5
           }

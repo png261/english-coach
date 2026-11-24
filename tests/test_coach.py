@@ -4,10 +4,12 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parent.parent / "plugins/english-coach/scripts/coach.py"
+HOME = tempfile.mkdtemp()  # empty English Coach folder: no saved settings
 
 
 def run(prompt=None, env_extra=None, raw_stdin=None):
@@ -16,6 +18,7 @@ def run(prompt=None, env_extra=None, raw_stdin=None):
         {"hook_event_name": "UserPromptSubmit", "prompt": prompt, "session_id": "t"}
     )
     env = {k: v for k, v in os.environ.items() if not k.startswith("ENGLISH_COACH")}
+    env["ENGLISH_COACH_HOME"] = HOME
     env.update(env_extra or {})
     p = subprocess.run(
         [sys.executable, str(SCRIPT)],
@@ -140,6 +143,9 @@ class Coaching(unittest.TestCase):
         ctx = context(run(ENGLISH, env_extra={"ENGLISH_COACH_LEVEL": "b2"})[1])
         self.assertIn("B2", ctx)
         self.assertNotIn("C1", ctx)
+
+    def test_repeat_mistakes_get_a_short_note(self):
+        self.assertIn("(again)", context(run(ENGLISH)[1]))
 
     def test_unclear_tip_never_stops(self):
         ctx = context(run(ENGLISH, env_extra={"ENGLISH_COACH_UNCLEAR": "tip"})[1])

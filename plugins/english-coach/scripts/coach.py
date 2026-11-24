@@ -3,21 +3,17 @@
 
 It calls no model. It only adds a short instruction, so the session's own model
 coaches the user (English diff, one level-up word, one prompt tip) and then does
-the task. Settings (environment variables, all optional):
-  ENGLISH_COACH          always | marker | off   (default: always)
-  ENGLISH_COACH_LEVEL    B2 | C1 | C2            (default: C1)
-  ENGLISH_COACH_UNCLEAR  rewrite | tip           (default: rewrite)
+the task. Settings (mode, level, unclear) come from common.setting():
+/english-coach:level, :pause and :settings, or environment variables.
 Fail-open: any problem means print nothing and exit 0.
 """
 
 import json
-import os
 import re
 import sys
 
-MODES = ("always", "marker", "off")
-LEVELS = ("B2", "C1", "C2")
-UNCLEAR = ("rewrite", "tip")
+import common
+
 MARKER = "en:"
 MIN_WORDS = 3  # 1-2 word replies like "ok", "go ahead" are skipped
 MIN_CHARS = 6  # same idea for languages written without spaces ("はい", "好的继续")
@@ -50,14 +46,6 @@ HAN = char_range(0x4E00, 0x9FFF)
 HANGUL = char_range(0xAC00, 0xD7AF)
 THAI = char_range(0x0E00, 0x0E7F)
 SPACELESS = ("Chinese", "Japanese", "Thai")
-
-
-def setting(name, allowed, default):
-    value = os.environ.get(name, "").strip()
-    for option in allowed:
-        if value.lower() == option.lower():
-            return option
-    return default
 
 
 def detect_language(text):
@@ -103,6 +91,8 @@ def build_instruction(level, language, unclear, marker):
         f"2. ⬆️ {level}: ≤1 more precise word or phrase, only if clearly better; one-line why.",
         "3. 💡 Prompt tip: ≤1, only if missing goal/context/done-criteria/constraints would change the result.",
         "Omit empty sections. Write all coaching notes in simple English, very brief.",
+        'A mistake you already explained earlier in this conversation: no rule again, '
+        'just the fix in ≤6 words plus "(again)".',
         vague,
     ]
     if marker:
@@ -119,9 +109,10 @@ def main():
     if not isinstance(prompt, str):
         return
 
-    mode = setting("ENGLISH_COACH", MODES, "always")
-    level = setting("ENGLISH_COACH_LEVEL", LEVELS, "C1")
-    unclear = setting("ENGLISH_COACH_UNCLEAR", UNCLEAR, "rewrite")
+    config = common.load_config()
+    mode = common.setting("mode", config)[0]
+    level = common.setting("level", config)[0]
+    unclear = common.setting("unclear", config)[0]
     if mode == "off":
         return
 

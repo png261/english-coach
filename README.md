@@ -13,7 +13,9 @@ English Coach is a Claude Code plugin that does exactly that. Before Claude does
 - **💡 Prompt tip**: at most one tip, only when a missing goal, context, "done when" or constraint would change the result.
 - **⚠️ Too vague?** Claude doesn't start. It shows what's missing and asks you to rewrite the prompt yourself.
 
-If your prompt is already good, you see nothing extra.
+If your prompt is already good, you see nothing extra. If you repeat a mistake Claude already explained in the same conversation, you get a short reminder marked "(again)" instead of the full rule.
+
+Each coaching note is also saved on your computer, so `/english-coach:review` can show your most common mistakes and give you practice sentences.
 
 ## Why English? It also saves tokens
 
@@ -100,9 +102,31 @@ Replace the spinner text ("Thinking…") and the tip under it with C1 vocabulary
 
 Plugins can't change spinner settings by themselves, so this command writes `spinnerVerbs` and `spinnerTipsOverride` into `~/.claude/settings.json` once. Your old values are backed up and restored by `remove`. The command costs 0 tokens until you run it. The word list is in [`data/c1-spinner.json`](plugins/english-coach/data/c1-spinner.json); edit it and run install again.
 
+## Review your mistakes
+
+```
+/english-coach:review          # top mistakes of the last 7 days, plus practice sentences
+/english-coach:review 30       # the last 30 days
+/english-coach:review clear    # delete the saved notes
+```
+
+A `Stop` hook reads the coaching in Claude's reply and appends it to `~/.claude/english-coach/mistakes.jsonl`: your original text, the corrected text and the notes. It calls no model and costs 0 tokens. The file stays on your computer. Run `/english-coach:settings log off` to stop saving notes.
+
 ## Settings
 
-All optional. Add them to the `env` block of `~/.claude/settings.json`:
+The easy way is a command. Changes apply from your next prompt; no restart is needed.
+
+```
+/english-coach:level B2               # target level: B2, C1 or C2
+/english-coach:pause                  # stop coaching in every session...
+/english-coach:resume                 # ...until you turn it back on
+/english-coach:settings               # show all settings
+/english-coach:settings mode marker   # only coach prompts that start with "en:"
+/english-coach:settings unclear tip   # never stop on vague prompts, just give a tip
+/english-coach:settings log off       # don't save notes for /english-coach:review
+```
+
+These are saved in `~/.claude/english-coach/config.json`. You can also use environment variables in the `env` block of `~/.claude/settings.json`; a value set with a command takes precedence over them:
 
 ```json
 {
@@ -119,8 +143,9 @@ All optional. Add them to the `env` block of `~/.claude/settings.json`:
 | `ENGLISH_COACH` | `always`: every real prompt<br>`marker`: only prompts starting with `en:`<br>`off`: disabled | `always` |
 | `ENGLISH_COACH_LEVEL` | `B2`, `C1`, `C2` | `C1` |
 | `ENGLISH_COACH_UNCLEAR` | `rewrite`: stop and ask you to rewrite<br>`tip`: never stop, just give a tip | `rewrite` |
+| `ENGLISH_COACH_LOG` | `on`, `off`: save notes for `/english-coach:review` | `on` |
 
-Turn it off for one session: `ENGLISH_COACH=off claude`
+Turn it off for one session: `ENGLISH_COACH=off claude` (this always wins, even over commands).
 
 **Always skipped (0 tokens):** slash commands (`/…`), prompts starting with `*` (bypass) or `#`, system messages, and 1–2 word replies like "ok" or "go ahead" (or under 6 characters in Chinese, Japanese or Thai, like "はい").
 
@@ -131,7 +156,7 @@ Turn it off for one session: `ENGLISH_COACH=off claude`
 
 ## How it works
 
-A `UserPromptSubmit` hook ([`coach.py`](plugins/english-coach/scripts/coach.py)) reads your prompt, applies the skip rules, detects Vietnamese, and returns the coaching instruction as `additionalContext`. If anything goes wrong it prints nothing, so your prompt always goes through.
+A `UserPromptSubmit` hook ([`coach.py`](plugins/english-coach/scripts/coach.py)) reads your prompt, applies the skip rules, detects Vietnamese, and returns the coaching instruction as `additionalContext`. If anything goes wrong it prints nothing, so your prompt always goes through. A `Stop` hook ([`record.py`](plugins/english-coach/scripts/record.py)) saves the coaching from Claude's reply for `/english-coach:review`, and fails silently the same way.
 
 ## Development
 
