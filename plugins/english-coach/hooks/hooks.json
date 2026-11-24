@@ -1,5 +1,5 @@
 {
-  "description": "Better Prompt adds a short English-coaching instruction to each prompt. It calls no model and adds no waiting.",
+  "description": "English Coach adds a short English-coaching instruction to each prompt. It calls no model and adds no waiting.",
   "hooks": {
     "UserPromptSubmit": [
       {

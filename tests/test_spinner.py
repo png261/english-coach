@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent / "plugins/better-prompt"
+ROOT = Path(__file__).resolve().parent.parent / "plugins/english-coach"
 SCRIPT = ROOT / "scripts/spinner.py"
 WORDS = json.loads((ROOT / "data/c1-spinner.json").read_text())
 
@@ -17,13 +17,13 @@ class Spinner(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.TemporaryDirectory()
         self.settings = Path(self.dir.name) / "settings.json"
-        self.backup = Path(self.dir.name) / "better-prompt-spinner-backup.json"
+        self.backup = Path(self.dir.name) / "english-coach-spinner-backup.json"
 
     def tearDown(self):
         self.dir.cleanup()
 
     def run_cmd(self, *args):
-        env = dict(os.environ, BETTER_PROMPT_SETTINGS=str(self.settings))
+        env = dict(os.environ, ENGLISH_COACH_SETTINGS=str(self.settings))
         p = subprocess.run([sys.executable, str(SCRIPT), *args],
                            capture_output=True, text=True, env=env, timeout=10)
         return p.returncode, p.stdout + p.stderr

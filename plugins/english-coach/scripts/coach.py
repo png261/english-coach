@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Better Prompt: a UserPromptSubmit hook that turns each prompt into an English lesson.
+"""English Coach: a UserPromptSubmit hook that turns each prompt into an English lesson.
 
 It calls no model. It only adds a short instruction, so the session's own model
 coaches the user (English diff, one level-up word, one prompt tip) and then does
 the task. Settings (environment variables, all optional):
-  BETTER_PROMPT          always | marker | off   (default: always)
-  BETTER_PROMPT_LEVEL    B2 | C1 | C2            (default: C1)
-  BETTER_PROMPT_UNCLEAR  rewrite | tip           (default: rewrite)
+  ENGLISH_COACH          always | marker | off   (default: always)
+  ENGLISH_COACH_LEVEL    B2 | C1 | C2            (default: C1)
+  ENGLISH_COACH_UNCLEAR  rewrite | tip           (default: rewrite)
 Fail-open: any problem means print nothing and exit 0.
 """
 
@@ -49,7 +49,7 @@ def build_instruction(level, vietnamese, unclear, marker):
     else:
         vague = "Never stop for vagueness: do your best and put the advice in the 💡 tip."
     lines = [
-        f"[Better Prompt: English coach, target {level}]",
+        f"[English Coach: target {level}]",
         "Before your reply, coach the user's latest prompt (their own words; ignore code/logs):",
         english,
         f"2. ⬆️ {level}: ≤1 more precise word or phrase, only if clearly better; one-line why.",
@@ -71,9 +71,9 @@ def main():
     if not isinstance(prompt, str):
         return
 
-    mode = setting("BETTER_PROMPT", MODES, "always")
-    level = setting("BETTER_PROMPT_LEVEL", LEVELS, "C1")
-    unclear = setting("BETTER_PROMPT_UNCLEAR", UNCLEAR, "rewrite")
+    mode = setting("ENGLISH_COACH", MODES, "always")
+    level = setting("ENGLISH_COACH_LEVEL", LEVELS, "C1")
+    unclear = setting("ENGLISH_COACH_UNCLEAR", UNCLEAR, "rewrite")
     if mode == "off":
         return
 

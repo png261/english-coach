@@ -1,4 +1,4 @@
-"""Tests for the Better Prompt hook. Run: python3 -m unittest discover -s tests"""
+"""Tests for the English Coach hook. Run: python3 -m unittest discover -s tests"""
 
 import json
 import os
@@ -7,7 +7,7 @@ import sys
 import unittest
 from pathlib import Path
 
-SCRIPT = Path(__file__).resolve().parent.parent / "plugins/better-prompt/scripts/coach.py"
+SCRIPT = Path(__file__).resolve().parent.parent / "plugins/english-coach/scripts/coach.py"
 
 
 def run(prompt=None, env_extra=None, raw_stdin=None):
@@ -15,7 +15,7 @@ def run(prompt=None, env_extra=None, raw_stdin=None):
     stdin = raw_stdin if raw_stdin is not None else json.dumps(
         {"hook_event_name": "UserPromptSubmit", "prompt": prompt, "session_id": "t"}
     )
-    env = {k: v for k, v in os.environ.items() if not k.startswith("BETTER_PROMPT")}
+    env = {k: v for k, v in os.environ.items() if not k.startswith("ENGLISH_COACH")}
     env.update(env_extra or {})
     p = subprocess.run(
         [sys.executable, str(SCRIPT)],
@@ -61,13 +61,13 @@ class SkipRules(unittest.TestCase):
         self.assertSilent("<task-notification>agent finished its work here</task-notification>")
 
     def test_mode_off(self):
-        self.assertSilent(ENGLISH, env_extra={"BETTER_PROMPT": "off"})
+        self.assertSilent(ENGLISH, env_extra={"ENGLISH_COACH": "off"})
 
     def test_mode_off_any_case(self):
-        self.assertSilent(ENGLISH, env_extra={"BETTER_PROMPT": " OFF "})
+        self.assertSilent(ENGLISH, env_extra={"ENGLISH_COACH": " OFF "})
 
     def test_marker_mode_without_marker(self):
-        self.assertSilent(ENGLISH, env_extra={"BETTER_PROMPT": "marker"})
+        self.assertSilent(ENGLISH, env_extra={"ENGLISH_COACH": "marker"})
 
 
 class Coaching(unittest.TestCase):
@@ -93,23 +93,23 @@ class Coaching(unittest.TestCase):
         self.assertIsNotNone(context(run("fix the bug")[1]))
 
     def test_marker_mode_with_marker(self):
-        ctx = context(run("en: " + ENGLISH, env_extra={"BETTER_PROMPT": "marker"})[1])
+        ctx = context(run("en: " + ENGLISH, env_extra={"ENGLISH_COACH": "marker"})[1])
         self.assertIsNotNone(ctx)
         self.assertIn("en:", ctx)
 
     def test_level_setting(self):
-        ctx = context(run(ENGLISH, env_extra={"BETTER_PROMPT_LEVEL": "b2"})[1])
+        ctx = context(run(ENGLISH, env_extra={"ENGLISH_COACH_LEVEL": "b2"})[1])
         self.assertIn("B2", ctx)
         self.assertNotIn("C1", ctx)
 
     def test_unclear_tip_never_stops(self):
-        ctx = context(run(ENGLISH, env_extra={"BETTER_PROMPT_UNCLEAR": "tip"})[1])
+        ctx = context(run(ENGLISH, env_extra={"ENGLISH_COACH_UNCLEAR": "tip"})[1])
         self.assertNotIn("rewrite it", ctx)
         self.assertIn("Never stop", ctx)
 
     def test_invalid_settings_fall_back_to_defaults(self):
         ctx = context(run(ENGLISH, env_extra={
-            "BETTER_PROMPT": "sometimes", "BETTER_PROMPT_LEVEL": "Z9", "BETTER_PROMPT_UNCLEAR": "???"})[1])
+            "ENGLISH_COACH": "sometimes", "ENGLISH_COACH_LEVEL": "Z9", "ENGLISH_COACH_UNCLEAR": "???"})[1])
         self.assertIn("C1", ctx)
         self.assertIn("rewrite", ctx)
 

@@ -6,8 +6,8 @@ Usage: spinner.py [install [--mix] | remove | status]   (default: install)
 install  sets spinnerVerbs and spinnerTipsOverride in ~/.claude/settings.json
          (--mix keeps Claude Code's built-in tips alongside the C1 tips)
 remove   restores whatever those two settings were before install
-Your previous values are saved in ~/.claude/better-prompt-spinner-backup.json.
-BETTER_PROMPT_SETTINGS overrides the settings path (used by tests).
+Your previous values are saved in ~/.claude/english-coach-spinner-backup.json.
+ENGLISH_COACH_SETTINGS overrides the settings path (used by tests).
 """
 
 import json
@@ -21,9 +21,9 @@ MISSING = "__missing__"
 
 
 def paths():
-    settings = Path(os.environ.get("BETTER_PROMPT_SETTINGS")
+    settings = Path(os.environ.get("ENGLISH_COACH_SETTINGS")
                     or Path.home() / ".claude" / "settings.json")
-    return settings, settings.parent / "better-prompt-spinner-backup.json"
+    return settings, settings.parent / "english-coach-spinner-backup.json"
 
 
 def load(path):

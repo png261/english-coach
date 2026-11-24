@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Bug report prompt",
+    "vi": "Trang đăng nhập trả về lỗi 401 dù tôi nhập đúng mật khẩu. Lỗi chỉ xảy ra khi người dùng đã đăng nhập hơn một giờ. Tôi nghĩ vấn đề nằm ở hàm làm mới token trong auth/session.ts. Hãy tìm nguyên nhân, sửa lỗi và thêm bài kiểm thử cho trường hợp token hết hạn. Đừng thêm thư viện mới.",
+    "en": "The login page returns a 401 error even when I enter the correct password. It only happens after the user has been logged in for more than an hour. I think the problem is in the token refresh function in auth/session.ts. Find the cause, fix it, and add a test for the expired-token case. Don't add any new libraries."
+  },
+  {
+    "name": "Feature request prompt",
+    "vi": "Thêm chức năng xuất báo cáo ra file CSV trên trang thống kê. Người dùng có thể chọn khoảng thời gian và các cột cần xuất. Nút xuất nên nằm cạnh bộ lọc ngày, giống thiết kế ở trang đơn hàng. Hoàn thành khi file tải về mở được bằng Excel và hiển thị đúng tiếng Việt có dấu.",
+    "en": "Add a feature to export reports to a CSV file on the statistics page. Users can choose the date range and which columns to export. The export button should sit next to the date filter, matching the design on the orders page. It's done when the downloaded file opens in Excel and shows Vietnamese accents correctly."
+  },
+  {
+    "name": "Claude's explanation",
+    "vi": "Lỗi xảy ra vì hàm xác thực không kiểm tra thời hạn của token trước khi gọi API. Khi token hết hạn, server trả về mã 401 và ứng dụng không tự làm mới token. Tôi đã sửa file auth/session.ts: thêm bước kiểm tra thời hạn, tự động làm mới token khi còn dưới 60 giây, và thử lại yêu cầu một lần nếu nhận được lỗi 401. Tất cả bài kiểm thử đều đã chạy thành công.",
+    "en": "The bug happens because the authentication function does not check the token's expiry before calling the API. When the token expires, the server returns a 401 and the app does not refresh the token automatically. I fixed auth/session.ts: added an expiry check, automatically refresh the token when it has less than 60 seconds left, and retry the request once if a 401 is received. All tests pass."
+  },
+  {
+    "name": "Code review comment",
+    "vi": "Hàm này đang làm quá nhiều việc: vừa đọc dữ liệu, vừa kiểm tra hợp lệ, vừa ghi vào cơ sở dữ liệu. Nên tách thành ba hàm nhỏ để dễ kiểm thử hơn. Ngoài ra, vòng lặp ở dòng 42 gọi truy vấn trong mỗi lần lặp, sẽ rất chậm khi có nhiều bản ghi.",
+    "en": "This function is doing too much: it reads the data, validates it, and writes it to the database. Split it into three smaller functions so it's easier to test. Also, the loop on line 42 runs a query on every iteration, which will be very slow with many records."
+  }
+]

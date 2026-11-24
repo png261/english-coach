@@ -1,13 +1,13 @@
 {
-  "name": "better-prompt",
-  "displayName": "Better Prompt",
+  "name": "english-coach",
+  "displayName": "English Coach",
   "description": "Learn English and better prompting while you work: an English diff, one level-up word, and one prompt tip on each prompt. Vietnamese prompts get a natural English version.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "png261"
   },
-  "homepage": "https://github.com/png261/better-prompt",
-  "repository": "https://github.com/png261/better-prompt",
+  "homepage": "https://github.com/png261/english-coach",
+  "repository": "https://github.com/png261/english-coach",
   "license": "MIT",
   "keywords": [
     "english",
