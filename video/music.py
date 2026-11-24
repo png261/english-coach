@@ -21,7 +21,7 @@ SR = 44100
 BPM = 128
 BEAT = 60 / BPM
 BAR = 4 * BEAT                 # 1.875 s
-DUR = 42.0
+DUR = 45.0
 N = int(SR * DUR)
 INTRO, BUILD, PEAK, END = 2 * BAR, 4 * BAR, 15 * BAR, 20 * BAR   # 3.75, 7.5, 28.1, 37.5 s
 rng = np.random.default_rng(7)
@@ -148,7 +148,7 @@ for k, m in enumerate(FINAL):
     add(piano(m, length=4.5, vel=0.24), END + k * 0.025, (k - 3) * 0.08)
 
 # Soft UI click sounds where the cursor clicks in the video.
-CLICKS = [6.6, 14.85, 19.9, 39.75]
+CLICKS = []  # no cursor in the kinetic version
 
 
 def click():

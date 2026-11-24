@@ -4,320 +4,331 @@
 <meta charset="utf-8">
 <title>English Coach: intro</title>
 <!--
-  Product-flow intro, 42 s. Times are in seconds. Each .scene has:
-    data-in / data-out   scene fade
-    data-cam             camera keyframes [[t, centerX, centerY, scale], ...]
-  Elements inside use data-in / data-out (slide + fade), data-type (typing),
-  .cursor with data-path [[t, x, y], ...] and data-clicks, .send with data-press.
+  Kinetic SaaS-promo style, 45 s at 128 BPM (1 bar = 1.875 s, 1 beat = 0.469 s).
+  Attributes (times in seconds):
+    data-in / data-out      appear / disappear (data-fx: blur | slide | pop | none)
+    data-tf                 transform keyframes [[t, x, y, scale, rotX, rotY, rotZ], ...]
+    data-drift="dx,dy"      slow drift in px per second
+    data-orbit="cx,cy,rx,ry,period,phase"
+    data-seq                typing steps [[t0, t1, from, to], ...]
+    data-count="from,to,start,dur,suffix"
 -->
 <style>
   :root {
-    --bg: #F3F1EC; --ink: #1D1C1A; --muted: #77726A; --line: #E4E0D8; --card: #FDFCFA;
-    --accent: #C4623C; --green: #2F7D4F; --green-bg: #E5F1E8; --red: #B5473F; --red-bg: #F8E6E3;
-    --serif: "Charter", "Iowan Old Style", Georgia, serif;
-    --sans: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --ink: #17141C; --muted: #6F6A74;
+    --c1: #FF5A3C; --c2: #FFA347;
+    --grad: linear-gradient(90deg, #FF5A3C 0%, #FF8A3D 55%, #FFB44D 100%);
+    --sans: "Avenir Next", -apple-system, "Helvetica Neue", sans-serif;
     --mono: "SF Mono", Menlo, monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 1920px; height: 1080px; overflow: hidden; color: var(--ink); font-family: var(--sans);
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0D0C12; font-family: var(--sans);
                -webkit-font-smoothing: antialiased; }
-  body { background-color: var(--bg);
-         background-image: linear-gradient(rgba(29,28,26,.045) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(29,28,26,.045) 1px, transparent 1px);
-         background-size: 56px 56px; background-position: -4px -12px; }
-  .scene { position: absolute; inset: 0; opacity: 0; overflow: hidden; }
-  .stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+  .scene { position: absolute; inset: 0; opacity: 0; overflow: hidden; perspective: 1700px; }
+  .dark { background: radial-gradient(ellipse 70% 55% at 50% 115%, rgba(255,90,60,.30), transparent 70%),
+                      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,163,71,.08), transparent 70%), #0D0C12;
+          color: #fff; }
+  .light { background: radial-gradient(ellipse 50% 45% at 15% 95%, rgba(255,140,90,.28), transparent 70%),
+                       radial-gradient(ellipse 45% 40% at 90% 10%, rgba(255,200,120,.30), transparent 70%),
+                       linear-gradient(180deg, #FFFFFF, #FFF6EF); color: var(--ink); }
   .abs { position: absolute; }
+  .line { position: absolute; left: 0; right: 0; text-align: center; font-weight: 600; letter-spacing: -0.025em; }
+  .w { display: inline-block; margin: 0 .12em; }
+  .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .glow { text-shadow: 0 0 40px rgba(255,110,70,.45); }
+  .dark .muted, .muted { color: #A8A1AD; }
 
-  .card { position: absolute; background: var(--card); border: 1px solid var(--line); border-radius: 20px;
-          box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 14px 36px rgba(60,45,30,.08); }
-  .pbox { height: 172px; padding: 30px 36px; font-size: 31px; line-height: 1.35; }
-  .ph { color: #A39E94; position: absolute; left: 36px; top: 30px; }
-  .plus { position: absolute; left: 32px; bottom: 22px; font-size: 38px; color: #8A857B; font-weight: 300; }
-  .send { position: absolute; right: 24px; bottom: 22px; width: 56px; height: 56px; border-radius: 14px;
-          background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; }
-  .send svg { width: 26px; height: 26px; }
-  .caret { display: inline-block; width: 3px; height: 36px; background: var(--ink); vertical-align: -6px; margin-left: 2px; }
+  .tile { width: 168px; height: 168px; border-radius: 44px; background: var(--grad);
+          display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 74px;
+          letter-spacing: -0.04em; box-shadow: 0 24px 60px rgba(255,90,60,.35), inset 0 2px 0 rgba(255,255,255,.35); }
+  .wordmark { font-weight: 700; letter-spacing: -0.035em; }
 
-  .bubble { position: absolute; background: #E8E5DE; border-radius: 18px; padding: 16px 26px;
-            font-size: 28px; line-height: 1.35; }
-  .say { position: absolute; font-family: var(--serif); font-size: 42px; line-height: 1.3; letter-spacing: -0.01em; }
-  .say em { color: var(--accent); }
-  .glyph { color: var(--accent); font-family: var(--sans); display: inline-block; width: 52px; }
+  .star { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; overflow: visible; }
+  .star path, .star use { fill: #fff; }
+  .star.warm use { fill: url(#sg); }
+  .star.glow { filter: drop-shadow(0 0 18px rgba(255,255,255,.9)) drop-shadow(0 0 40px rgba(255,120,80,.8)); }
+  .inl { position: static; margin: 0; width: 70px; height: 70px; vertical-align: -4px; }
 
-  .coach { padding: 34px 40px 30px; }
-  .ch { font-size: 28px; font-weight: 650; margin-bottom: 14px; }
-  .dl { font-family: var(--mono); font-size: 26px; line-height: 1.5; padding: 6px 14px; border-radius: 10px;
-        margin-top: 8px; white-space: nowrap; }
-  .del { color: var(--red); background: var(--red-bg); }
-  .add { color: var(--green); background: var(--green-bg); }
-  .note { font-size: 25px; color: #4D4943; margin-top: 14px; line-height: 1.4; }
+  .arc { position: absolute; border-radius: 50%; border: 3px solid rgba(255,110,70,.55);
+         box-shadow: 0 0 40px rgba(255,110,70,.35), inset 0 0 40px rgba(255,110,70,.18); }
+  .horizon { position: absolute; left: -760px; width: 3440px; height: 3440px; border-radius: 50%;
+             border-top: 3px solid rgba(255,170,120,.9);
+             box-shadow: 0 -18px 60px rgba(255,100,60,.35), inset 0 30px 80px rgba(255,100,60,.18);
+             background: radial-gradient(circle at 50% 0%, rgba(255,90,60,.10), #0D0C12 30%); }
+
+  .cloud { position: absolute; font-weight: 600; white-space: nowrap; }
+  .pill { position: absolute; padding: 22px 38px; border-radius: 999px; font-size: 42px; font-weight: 600;
+          background: #fff; color: var(--ink); box-shadow: 0 14px 36px rgba(255,100,60,.18);
+          border: 1px solid rgba(255,140,90,.25); white-space: nowrap; }
+  .pill i { font-style: normal; color: var(--c1); }
+
+  .ui { position: absolute; background: #fff; color: var(--ink); border-radius: 26px; padding: 40px 48px;
+        box-shadow: 0 40px 120px rgba(255,90,60,.35), 0 0 0 1px rgba(255,255,255,.6); transform-origin: 50% 0; }
+  .ui .bar { display: flex; gap: 10px; margin-bottom: 26px; }
+  .ui .bar i { width: 14px; height: 14px; border-radius: 50%; background: #E9E3DD; display: block; }
+  .ui .prompt { font-family: var(--mono); font-size: 27px; color: #4A4550; margin-bottom: 22px; }
+  .ui .prompt b { color: var(--c1); }
+  .ui .h { font-size: 30px; font-weight: 700; margin-bottom: 12px; }
+  .dl { font-family: var(--mono); font-size: 27px; padding: 8px 16px; border-radius: 12px; margin-top: 10px; white-space: nowrap; }
+  .del { color: #B5473F; background: #FBE7E4; }
+  .add { color: #237A49; background: #E3F3E8; }
+  .note { font-size: 27px; color: #4D4853; margin-top: 16px; }
   .note b { color: var(--ink); }
-  .c1 { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); font-family: var(--serif);
-        font-size: 30px; }
-  .c1 .tag { font-family: var(--sans); font-size: 22px; font-weight: 650; color: #fff; background: var(--accent);
-             border-radius: 8px; padding: 3px 10px; margin-right: 12px; vertical-align: 3px; }
-  .c1 b { color: var(--accent); font-style: italic; font-weight: 400; }
-
-  .list { padding: 30px 36px; }
-  .lt { font-size: 26px; font-weight: 650; margin-bottom: 18px; }
-  .li { display: flex; align-items: center; gap: 22px; font-size: 30px; height: 72px; }
-  .num { width: 46px; height: 46px; border-radius: 50%; border: 2.5px solid #3A6FD8; color: #3A6FD8;
-         display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; flex: none; }
-
-  .pill { position: absolute; background: #fff; border: 1px solid var(--line); border-radius: 999px;
-          padding: 14px 26px; font-size: 26px; box-shadow: 0 6px 18px rgba(60,45,30,.07); white-space: nowrap; }
-  .pill b { color: var(--accent); }
-
-  .headline { position: absolute; left: 0; right: 0; text-align: center; font-family: var(--serif);
-              font-size: 76px; letter-spacing: -0.02em; line-height: 1.15; }
-  .headline em { color: var(--accent); }
-  .bars { padding: 40px 48px; }
-  .row { display: grid; grid-template-columns: 190px 1fr; align-items: center; gap: 24px; height: 92px; }
-  .rl { font-size: 28px; color: var(--muted); text-align: right; }
-  .bar { height: 60px; border-radius: 12px; width: 0; display: flex; align-items: center; justify-content: flex-end;
-         padding-right: 18px; font-family: var(--mono); font-size: 26px; color: #fff; }
-  .bar.vi { background: var(--accent); }
-  .bar.en { background: #44514A; }
-  .badge { position: absolute; font-family: var(--serif); font-size: 64px; color: var(--accent); font-style: italic; }
-
-  .title { position: absolute; left: 0; right: 0; text-align: center; font-family: var(--serif);
-           font-size: 132px; letter-spacing: -0.03em; }
-  .sub { position: absolute; left: 0; right: 0; text-align: center; font-size: 34px; color: var(--muted); }
-  .cmd { font-family: var(--mono); font-size: 29px; padding: 26px 36px; line-height: 1.7; }
-  .cmd span { color: #A39E94; }
-  .copy { position: absolute; right: 22px; top: 22px; font-family: var(--sans); font-size: 22px; color: var(--muted);
-          border: 1px solid var(--line); border-radius: 10px; padding: 6px 14px; background: #fff; }
-
-  .cursor { position: absolute; width: 46px; height: 46px; transform-origin: 6px 4px; z-index: 50;
-            filter: drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
-  .fade { position: absolute; inset: 0; background: var(--bg); opacity: 0; pointer-events: none; }
+  .c1line { margin-top: 22px; padding-top: 20px; border-top: 1px solid #EEE7E1; font-size: 30px; }
+  .tag { display: inline-block; font-size: 22px; font-weight: 700; color: #fff; background: var(--grad);
+         border-radius: 8px; padding: 4px 12px; margin-right: 14px; vertical-align: 4px; }
+  .li { display: flex; align-items: center; gap: 24px; font-size: 34px; font-weight: 600; height: 78px; }
+  .num { width: 52px; height: 52px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 26px;
+         display: flex; align-items: center; justify-content: center; flex: none; }
+  .caret { display: inline-block; width: 7px; height: .85em; margin-left: 10px; vertical-align: -0.06em; }
+  .cmd { font-family: var(--mono); font-size: 30px; line-height: 1.8; padding: 28px 42px; border-radius: 22px;
+         background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: #F4EEE9; }
+  .cmd span { color: #FF9C6B; }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  #fade { position: absolute; inset: 0; background: #0D0C12; opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
-
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <symbol id="arrow" viewBox="0 0 32 32"><path d="M6 3 L6 26 L12 20.5 L16 29 L20 27.2 L16 18.8 L24 18.8 Z"
-      fill="#111" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></symbol>
-    <symbol id="up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fff"
-      stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <linearGradient id="sg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#FF5A3C"/><stop offset="1" stop-color="#FFB44D"/></linearGradient>
+    <symbol id="spark" viewBox="0 0 100 100"><path d="M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0Z"/></symbol>
   </defs>
 </svg>
 
-<!-- 1. Hook -->
-<section class="scene" data-in="0.0" data-out="3.65">
-  <div class="stage" data-cam='[[0, 960, 540, 1.272], [3.7, 960, 540, 1.2]]'>
-    <div class="headline" style="top:370px; font-size:70px" data-in="0.25">You write to AI agents all day.</div>
-    <div class="headline" style="top:470px; font-size:70px" data-in="1.45">Make every prompt an <em>English lesson.</em></div>
+<!-- A. Hook (dark) 0 - 3.75 -->
+<section class="scene dark" data-in="0" data-out="3.75">
+  <div class="line" style="top:440px; font-size:128px"><span class="w grad glow" data-in="0.05" data-out="1.8" data-fx="blur">Struggling</span></div>
+  <div class="line" style="top:470px; font-size:84px">
+    <span class="w" data-in="1.875" data-fx="blur">to</span><span class="w" data-in="2.11" data-fx="blur">write</span><span class="w" data-in="2.34" data-fx="blur">prompts</span><span class="w" data-in="2.81" data-fx="blur">in</span><span class="w grad glow" data-in="3.05" data-fx="blur">English?</span>
+  </div>
+  <svg class="star glow" data-in="3.2" data-fx="none" data-tf="[[3.2,120,540,0.3,0,0,0],[3.62,960,540,1.4,0,0,200],[3.75,960,540,9,0,0,260]]"><use href="#spark"/></svg>
+</section>
+
+<!-- B. Logo + promise (light) 3.75 - 7.5 -->
+<section class="scene light" data-in="3.75" data-out="7.5">
+  <div class="abs" style="left:520px; top:446px; display:flex; align-items:center; gap:40px" data-in="3.8" data-out="5.55" data-fx="pop">
+    <div class="tile">Aa</div>
+    <div class="wordmark" style="font-size:120px">English Coach</div>
+  </div>
+  <div class="line" style="top:476px; font-size:80px">
+    <span class="w" data-in="5.625" data-fx="blur">The</span><span class="w grad" data-in="5.86" data-fx="blur">English</span><span class="w grad" data-in="6.09" data-fx="blur">tutor</span><span class="w" data-in="6.56" data-fx="blur">inside</span><span class="w" data-in="6.8" data-fx="blur">Claude</span><span class="w" data-in="7.03" data-fx="blur">Code</span>
   </div>
 </section>
 
-<!-- 2. English mistakes -->
-<section class="scene" data-in="3.7" data-out="12.4">
-  <div class="stage" data-cam='[[3.7, 960, 606, 1.664], [6.5, 960, 606, 1.664], [7.2, 960, 520, 1.3], [8.3, 960, 520, 1.3], [8.9, 960, 404, 2.08], [9.9, 960, 404, 2.08], [10.5, 960, 560, 1.3], [12.4, 960, 560, 1.352]]'>
-    <div class="card pbox" style="left:460px; top:520px; width:1000px" data-in="3.75" data-out="7.45">
-      <span class="ph" data-in="3.75" data-out="4.15">Type a prompt…</span>
-      <span data-type="please explain me shortly what is a race condition" data-ts="4.15" data-te="5.9" data-caret-until="6.6"></span>
-      <div class="plus">+</div>
-      <div class="send" data-press="6.6"><svg><use href="#up"/></svg></div>
-      <svg class="cursor" data-path="[[4.0,1700,900],[5.9,1640,860],[6.5,1418,650],[6.9,1418,650],[7.3,1560,760]]" data-clicks="[6.6]" data-out="7.2"><use href="#arrow"/></svg>
-    </div>
-    <div class="bubble" style="right:460px; top:120px" data-in="6.9">please explain me shortly what is a race condition</div>
-    <div class="card coach" style="left:460px; top:230px; width:1000px" data-in="7.25">
-      <div class="ch">📝 English</div>
-      <div class="dl del" data-in="7.6">- please explain me shortly what is a race condition</div>
-      <div class="dl add" data-in="8.0">+ Please briefly explain to me what a race condition is.</div>
-      <div class="note" data-in="10.0">• <b>explain to me</b>: "explain" needs "to" before the person.</div>
-      <div class="note" data-in="10.3">• <b>what a race condition is</b>: statement word order inside a question.</div>
-      <div class="note" data-in="10.6">• <b>briefly</b>, not "shortly", which means "soon".</div>
-      <div class="c1" data-in="11.1"><span class="tag">⬆ C1</span>"Could you give me a <b>concise</b> explanation?"</div>
-    </div>
+<!-- C. Word cloud (light) 7.5 - 11.25 -->
+<section class="scene light" data-in="7.5" data-out="11.25">
+  <div class="cloud grad" style="left:150px; top:170px; font-size:48px; filter:blur(3px)" data-in="7.5" data-drift="14,4">C1 vocabulary</div>
+  <div class="cloud" style="left:1240px; top:220px; font-size:38px; color:#FF7A50; filter:blur(5px)" data-in="7.6" data-drift="-12,6">explain to me</div>
+  <div class="cloud" style="left:1350px; top:740px; font-size:52px; color:#FF5A3C; filter:blur(2px)" data-in="7.7" data-drift="-16,-3">prompt tips</div>
+  <div class="cloud" style="left:230px; top:780px; font-size:40px; color:#FFA347; filter:blur(4px)" data-in="7.8" data-drift="10,-6">Vietnamese → English</div>
+  <div class="cloud" style="left:120px; top:470px; font-size:34px; color:#C9A79A; filter:blur(6px)" data-in="7.9" data-drift="18,0">briefly</div>
+  <div class="cloud" style="left:1500px; top:470px; font-size:36px; color:#C9A79A; filter:blur(6px)" data-in="8.0" data-drift="-14,2">concise</div>
+  <div class="cloud" style="left:760px; top:120px; font-size:30px; color:#D4B5A8; filter:blur(7px)" data-in="8.1" data-drift="6,8">0 s waiting</div>
+  <div class="cloud" style="left:820px; top:880px; font-size:32px; color:#D4B5A8; filter:blur(5px)" data-in="8.2" data-drift="-8,-8">diff</div>
+  <div class="line" style="top:470px; font-size:118px"><span class="w" data-in="7.5" data-out="8.4" data-fx="blur">Grammar</span></div>
+  <div class="line" style="top:470px; font-size:118px"><span class="w" data-in="8.44" data-out="9.33" data-fx="blur">Vocabulary</span></div>
+  <div class="line" style="top:470px; font-size:118px"><span class="w" data-in="9.375" data-out="10.27" data-fx="blur">Prompts</span></div>
+  <div class="line" style="top:470px; font-size:118px"><span class="w grad glow" data-in="10.31" data-fx="blur">Confidence</span></div>
+</section>
+
+<!-- D. Arcs + verbs (light) 11.25 - 15 -->
+<section class="scene light" data-in="11.25" data-out="15">
+  <div class="arc" style="left:-900px; top:-260px; width:1600px; height:1600px" data-in="11.25" data-fx="none" data-tf="[[11.25,-200,0,0.9],[15,60,0,1.05]]"></div>
+  <div class="arc" style="left:1220px; top:-300px; width:1600px; height:1600px" data-in="11.25" data-fx="none" data-tf="[[11.25,200,0,0.9],[15,-60,0,1.05]]"></div>
+  <div class="line" style="top:466px; font-size:100px">
+    <span class="w" data-in="11.3" data-out="13.05" data-fx="blur"><svg class="star inl warm"><use href="#spark"/></svg></span><span class="w" data-in="11.3" data-out="13.05" data-fx="blur">Fix</span><span class="w grad" data-in="11.72" data-out="13.05" data-fx="blur">your English</span>
+  </div>
+  <div class="line" style="top:466px; font-size:100px">
+    <span class="w" data-in="13.125" data-fx="blur"><svg class="star inl warm"><use href="#spark"/></svg></span><span class="w" data-in="13.125" data-fx="blur">Level up</span><span class="w grad" data-in="13.6" data-fx="blur">your words</span>
   </div>
 </section>
 
-<!-- 3. Vietnamese -->
-<section class="scene" data-in="12.45" data-out="18.45">
-  <div class="stage" data-cam='[[12.45, 960, 606, 1.5], [15.0, 960, 606, 1.5], [15.6, 960, 500, 1.25], [16.4, 960, 500, 1.25], [17.0, 820, 508, 1.9375], [18.45, 820, 508, 2.0]]'>
-    <div class="card pbox" style="left:360px; top:520px; width:1200px" data-in="12.5" data-out="15.65">
-      <span class="ph" data-in="12.5" data-out="12.8">Type a prompt…</span>
-      <span data-type="giải thích ngắn gọn sự khác nhau giữa let và const trong javascript" data-ts="12.8" data-te="14.35" data-caret-until="14.85"></span>
-      <div class="plus">+</div>
-      <div class="send" data-press="14.85"><svg><use href="#up"/></svg></div>
-      <svg class="cursor" data-path="[[12.6,1720,900],[14.3,1660,860],[14.75,1618,650],[15.1,1618,650]]" data-clicks="[14.85]" data-out="15.3"><use href="#arrow"/></svg>
-    </div>
-    <div class="bubble" style="right:360px; top:150px" data-in="15.1">giải thích ngắn gọn sự khác nhau giữa let và const trong javascript</div>
-    <div class="card coach" style="left:360px; top:262px; width:1200px" data-in="15.4">
-      <div class="ch">📝 English</div>
-      <div class="dl del" data-in="15.7">- giải thích ngắn gọn sự khác nhau giữa let và const trong javascript</div>
-      <div class="dl add" data-in="16.05">+ Briefly explain the difference between let and const in JavaScript.</div>
-      <div class="note" data-in="16.5">• <b>briefly</b>: fits "ngắn gọn" better than "shortly", which means "soon".</div>
-      <div class="note" data-in="16.8">• <b>the difference between X and Y</b>: the usual way to compare two things.</div>
-    </div>
+<!-- E+F. Product (dark) 15 - 22.5 -->
+<section class="scene dark" data-in="15" data-out="22.5">
+  <div class="horizon" style="top:760px" data-tf="[[15,0,0,1],[22.5,0,-80,1.04]]"></div>
+  <div class="line" style="top:440px; font-size:84px" data-tf="[[16.6,0,0,1],[17.1,0,-330,0.72]]">
+    <span class="w" data-in="15.0" data-fx="blur">Write</span><span class="w" data-in="15.23" data-fx="blur">your</span><span class="w" data-in="15.47" data-fx="blur">prompt,</span><span class="w grad glow" data-in="15.94" data-fx="blur">see</span><span class="w grad glow" data-in="16.17" data-fx="blur">what</span><span class="w grad glow" data-in="16.4" data-fx="blur">to fix.</span>
+  </div>
+  <div class="ui" style="left:390px; top:300px; width:1140px" data-in="16.9" data-fx="none"
+       data-tf="[[16.9,0,620,0.9,38],[17.6,0,40,0.95,16],[18.75,0,40,0.95,14],[19.5,0,-40,1.04,3],[22.5,0,-70,1.1,0]]">
+    <div class="bar"><i></i><i></i><i></i></div>
+    <div class="prompt"><b>&gt;</b> please explain me shortly what is a race condition</div>
+    <div class="h">📝 English</div>
+    <div class="dl del" data-in="17.5">- please explain me shortly what is a race condition</div>
+    <div class="dl add" data-in="17.97">+ Please briefly explain to me what a race condition is.</div>
+    <div class="note" data-in="19.2">• <b>explain to me</b>: "explain" needs "to" before the person.</div>
+    <div class="note" data-in="19.66">• <b>what a race condition is</b>: statement word order.</div>
+    <div class="note" data-in="20.1">• <b>briefly</b>, not "shortly", which means "soon".</div>
+    <div class="c1line" data-in="20.6"><span class="tag">⬆ C1</span>"Could you give me a <b class="grad">concise</b> explanation?"</div>
+  </div>
+  <svg class="star glow" data-in="22.0" data-fx="none" data-tf="[[22.0,1820,180,0.4,0,0,0],[22.38,960,540,1.6,0,0,220],[22.5,960,540,10,0,0,280]]"><use href="#spark"/></svg>
+</section>
+
+<!-- G. Vietnamese (light) 22.5 - 26.25 -->
+<section class="scene light" data-in="22.5" data-out="26.25">
+  <div class="line" style="top:450px; font-size:104px">
+    <span class="w" data-in="22.5" data-out="23.85" data-fx="blur">Think in</span><span class="w grad" data-in="22.97" data-out="23.85" data-fx="blur">Vietnamese.</span>
+  </div>
+  <div class="line" style="top:420px; font-size:150px; font-weight:700" data-in="23.9" data-fx="none">
+    <span data-seq='[[24.0,24.55,"","ngắn gọn"],[24.85,25.15,"ngắn gọn",""],[25.2,25.7,"","briefly"]]' data-grad-from="25.2"></span><span class="caret"></span>
+  </div>
+  <div class="line" style="top:640px; font-size:38px; font-weight:500; color:#6F6A74" data-in="25.75" data-fx="slide">"ngắn gọn" → <b style="color:#17141C">briefly</b>, not "shortly" (= soon)</div>
+</section>
+
+<!-- H. C1 + orbit (light) 26.25 - 30 -->
+<section class="scene light" data-in="26.25" data-out="30">
+  <div class="line" style="top:250px; font-size:420px; font-weight:700; letter-spacing:-0.05em; line-height:1" data-in="26.25" data-out="27.15" data-fx="pop"><span class="grad">C1</span></div>
+  <div class="line" style="top:150px; font-size:64px" data-in="27.2" data-fx="blur">C1 words, <span class="grad">in context.</span></div>
+  <div class="abs" style="left:876px; top:520px" data-in="27.25" data-fx="pop"><div class="tile">Aa</div></div>
+  <div class="pill" data-orbit="960,610,640,270,12,0.0" data-in="27.4" data-fx="pop"><i>✦</i> concise</div>
+  <div class="pill" data-orbit="960,610,640,270,12,0.1667" data-in="27.5" data-fx="pop"><i>✦</i> mitigate</div>
+  <div class="pill" data-orbit="960,610,640,270,12,0.3333" data-in="27.6" data-fx="pop"><i>✦</i> pinpoint</div>
+  <div class="pill" data-orbit="960,610,640,270,12,0.5" data-in="27.7" data-fx="pop"><i>✦</i> caveat</div>
+  <div class="pill" data-orbit="960,610,640,270,12,0.6667" data-in="27.8" data-fx="pop"><i>✦</i> bottleneck</div>
+  <div class="pill" data-orbit="960,610,640,270,12,0.8333" data-in="27.9" data-fx="pop"><i>✦</i> trade-off</div>
+</section>
+
+<!-- I. Vague prompt (dark) 30 - 33.75 -->
+<section class="scene dark" data-in="30" data-out="33.75">
+  <div class="horizon" style="top:820px"></div>
+  <div class="line" style="top:450px; font-size:110px">
+    <span class="w" data-in="30.0" data-out="31.3" data-fx="blur">Vague</span><span class="w grad glow" data-in="30.47" data-out="31.3" data-fx="blur">prompt?</span>
+  </div>
+  <div class="pill" style="left:780px; top:190px; font-family:var(--mono); font-size:34px" data-in="31.4" data-fx="pop">&gt; fix the bug</div>
+  <div class="ui" style="left:560px; top:320px; width:800px; padding:36px 44px" data-in="31.85" data-fx="none"
+       data-tf="[[31.85,0,500,0.9,30,-10],[32.4,0,0,1,8,-6],[33.75,0,-20,1.04,4,-3]]">
+    <div class="h">⚠️ Rewrite it with:</div>
+    <div class="li" data-in="32.3"><span class="num">1</span>What's wrong</div>
+    <div class="li" data-in="32.55"><span class="num">2</span>Where it happens</div>
+    <div class="li" data-in="32.8"><span class="num">3</span>How to reproduce it</div>
+    <div class="li" data-in="33.05"><span class="num">4</span>When it's done</div>
   </div>
 </section>
 
-<!-- 4. Vague prompt -->
-<section class="scene" data-in="18.5" data-out="24.5">
-  <div class="stage" data-cam='[[18.5, 960, 606, 1.625], [20.0, 960, 606, 1.625], [20.6, 960, 470, 1.25], [22.2, 960, 470, 1.25], [22.8, 720, 520, 2.4375], [24.5, 720, 600, 2.4375]]'>
-    <div class="card pbox" style="left:460px; top:520px; width:1000px" data-in="18.55" data-out="20.75">
-      <span class="ph" data-in="18.55" data-out="18.9">Type a prompt…</span>
-      <span data-type="fix the bug" data-ts="18.9" data-te="19.4" data-caret-until="19.9"></span>
-      <div class="plus">+</div>
-      <div class="send" data-press="19.9"><svg><use href="#up"/></svg></div>
-      <svg class="cursor" data-path="[[18.7,1700,900],[19.4,1600,800],[19.8,1418,650],[20.2,1418,650]]" data-clicks="[19.9]" data-out="20.4"><use href="#arrow"/></svg>
-    </div>
-    <div class="bubble" style="right:460px; top:130px" data-in="20.2">fix the bug</div>
-    <div class="say" style="left:460px; top:220px" data-in="20.5"><span class="glyph">⚠</span>Your request needs more detail.</div>
-    <div class="card list" style="left:460px; top:310px; width:640px" data-in="20.9">
-      <div class="lt">Rewrite it with:</div>
-      <div class="li" data-in="21.2"><span class="num">1</span>What's wrong</div>
-      <div class="li" data-in="21.45"><span class="num">2</span>Where it happens</div>
-      <div class="li" data-in="21.7"><span class="num">3</span>How to reproduce it</div>
-      <div class="li" data-in="21.95"><span class="num">4</span>When it's done</div>
-    </div>
+<!-- J. Numbers, build-up (dark) 33.75 - 37.5 -->
+<section class="scene dark" data-in="33.75" data-out="37.5">
+  <div class="line muted" style="top:250px; font-size:64px">
+    <span class="w" data-in="33.75" data-fx="blur">Vietnamese</span><span class="w" data-in="34.0" data-fx="blur">costs</span>
   </div>
+  <div class="line" style="top:330px; font-size:300px; font-weight:700; letter-spacing:-0.05em; line-height:1" data-in="34.4" data-fx="pop"><span class="grad glow" data-count="0,77,34.5,1.4,%">+0%</span></div>
+  <div class="line" style="top:690px; font-size:64px">
+    <span class="w" data-in="35.6" data-fx="blur">more tokens</span><span class="w muted" data-in="35.84" data-fx="blur">than English.</span>
+  </div>
+  <svg class="star glow" data-in="36.6" data-fx="none" data-tf="[[36.6,960,140,0.2,0,0,0],[37.2,960,540,1.3,0,0,240],[37.5,960,540,14,0,0,300]]"><use href="#spark"/></svg>
 </section>
 
-<!-- 5. Better prompt -->
-<section class="scene" data-in="24.55" data-out="28.05">
-  <div class="stage" data-cam='[[24.55, 960, 520, 1.35], [28.05, 960, 540, 1.512]]'>
-    <div class="bubble" style="right:440px; top:260px; width:900px" data-in="24.65">Login returns 401 with a correct password. Expected: redirect to /home. Done when the auth tests pass.</div>
-    <div class="say" style="left:440px; top:470px; font-style:italic" data-in="25.5"><span class="glyph" data-spin="25.5" data-verbs='["Pinpointing"]'></span><span data-verb></span></div>
-    <div class="pill" style="left:440px; top:560px" data-in="26.1">C1 · <b>pinpoint</b> (v): find the exact cause or place</div>
+<!-- K. DROP: logo (dark) 37.5 - 41.25 -->
+<section class="scene dark" data-in="37.5" data-out="41.25">
+  <div class="horizon" style="top:780px" data-tf="[[37.5,0,120,1],[41.25,0,0,1]]"></div>
+  <div class="abs" style="left:381px; top:400px; display:flex; align-items:center; gap:44px" data-in="37.5" data-fx="pop">
+    <div class="tile" style="width:190px;height:190px;font-size:84px;border-radius:50px">Aa</div>
+    <div class="wordmark" style="font-size:140px">English Coach</div>
   </div>
+  <div class="line muted" style="top:680px; font-size:44px; font-weight:500" data-in="39.375" data-fx="blur">Free &amp; open source · for Claude Code</div>
+  <svg class="star glow" data-in="37.5" data-out="38.5" data-fx="none" data-tf="[[37.5,960,540,0.2,0,0,0],[38.4,300,200,1,0,0,180]]"><use href="#spark"/></svg>
+  <svg class="star glow" data-in="37.5" data-out="38.5" data-fx="none" data-tf="[[37.5,960,540,0.2,0,0,0],[38.4,1640,240,0.8,0,0,-160]]"><use href="#spark"/></svg>
+  <svg class="star glow" data-in="37.5" data-out="38.5" data-fx="none" data-tf="[[37.5,960,540,0.2,0,0,0],[38.4,1500,860,0.7,0,0,200]]"><use href="#spark"/></svg>
+  <svg class="star glow" data-in="37.5" data-out="38.5" data-fx="none" data-tf="[[37.5,960,540,0.2,0,0,0],[38.4,380,880,0.9,0,0,-200]]"><use href="#spark"/></svg>
+  <svg class="star warm glow" style="width:60px;height:60px;margin:-30px 0 0 -30px" data-in="38.0" data-fx="pop" data-tf="[[38.0,1371,380,0.6,0,0,0],[41.25,1371,370,1,0,0,90]]"><use href="#spark"/></svg>
 </section>
 
-<!-- 6. Numbers -->
-<section class="scene" data-in="28.1" data-out="33.8">
-  <div class="stage" data-cam='[[28.1, 960, 540, 1.25], [31.6, 960, 540, 1.325], [32.3, 1470, 460, 1.875], [33.8, 1480, 460, 1.9375]]'>
-    <div class="headline" style="top:190px; font-size:68px" data-in="28.15">Vietnamese costs <em>77% more tokens.</em></div>
-    <div class="card bars" style="left:360px; top:340px; width:1000px" data-in="28.5">
-      <div class="row"><div class="rl">Vietnamese</div><div><div class="bar vi" data-bar="100" data-count="673" data-bs="28.9" data-bd="1.2"></div></div></div>
-      <div class="row"><div class="rl">English</div><div><div class="bar en" data-bar="56.6" data-count="381" data-bs="29.1" data-bd="1.2"></div></div></div>
-    </div>
-    <div class="badge" style="left:1400px; top:420px" data-in="30.3">+77%</div>
-    <div class="pill" style="left:360px; top:620px" data-in="30.7">No extra model call</div>
-    <div class="pill" style="left:680px; top:620px" data-in="30.95">0 s waiting</div>
-    <div class="pill" style="left:900px; top:620px" data-in="31.2">~220 tokens per prompt</div>
+<!-- L. Get started (dark) 41.25 - 45 -->
+<section class="scene dark" data-in="41.25" data-out="99">
+  <div class="line" style="top:250px; font-size:76px">
+    <span class="w" data-in="41.25" data-fx="blur">Get started</span><span class="w grad glow" data-in="41.5" data-fx="blur">for free</span>
   </div>
+  <div class="cmd abs" style="left:380px; top:420px; width:1160px; white-space:nowrap" data-in="41.8" data-fx="slide">
+    <div><span>&gt;</span> /plugin marketplace add png261/english-coach</div>
+    <div><span>&gt;</span> /plugin install english-coach@english-coach</div>
+  </div>
+  <div class="line muted" style="top:700px; font-size:38px; font-weight:500" data-in="42.3" data-fx="blur">github.com/png261/english-coach</div>
 </section>
 
-<!-- 7. Spinner -->
-<section class="scene" data-in="33.85" data-out="37.45">
-  <div class="stage" data-cam='[[33.85, 960, 540, 1.456], [37.45, 960, 540, 1.3]]'>
-    <div class="say" style="left:0; right:0; top:410px; text-align:center; font-size:64px; font-style:italic" data-in="33.9">
-      <span class="glyph" style="width:80px" data-spin="33.9" data-verbs='["Scrutinizing","Deliberating","Corroborating","Disentangling"]'></span><span data-verb></span></div>
-    <div class="pill" style="left:50%; top:560px; transform-origin:center" data-in="34.2" data-center="1" data-tips="34.2"></div>
-  </div>
-</section>
-
-<!-- 8. Call to action -->
-<section class="scene" data-in="37.5" data-out="99">
-  <div class="stage" data-cam='[[37.5, 960, 540, 1.35], [42, 960, 540, 1.25]]'>
-    <div class="title" style="top:250px" data-in="37.55">English Coach</div>
-    <div class="sub" style="top:430px" data-in="37.9">Learn English while you work in Claude Code.</div>
-    <div class="card cmd" style="left:440px; top:530px; width:1040px; padding-right:170px" data-in="38.25">
-      <div><span>&gt;</span> /plugin marketplace add png261/english-coach</div>
-      <div><span>&gt;</span> /plugin install english-coach@english-coach</div>
-      <div class="copy" data-press="39.75"><span data-swap="39.75" data-a="Copy" data-b="✓ Copied"></span></div>
-      <svg class="cursor" data-path="[[38.6,1500,900],[39.6,1413,572],[40.4,1413,572],[41.0,1480,700]]" data-clicks="[39.75]" data-in="38.6"><use href="#arrow"/></svg>
-    </div>
-    <div class="sub" style="top:740px; font-size:30px" data-in="38.6">github.com/png261/english-coach</div>
-  </div>
-</section>
-
-<div class="fade" id="fade"></div>
+<div id="flash"></div>
+<div id="fade"></div>
 
 <script>
-  const DURATION = 42;
-  const GLYPHS = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
-  const TIPS = [
-    ["mitigate", "(v): make less serious"],
-    ["ambiguous", "(adj): open to more than one meaning"],
-    ["bottleneck", "(n): the slowest part of a system"],
-    ["caveat", "(n): a warning to keep in mind"],
-  ];
+  const DURATION = 45;
+  const FLASHES = [3.75, 22.5, 37.5];
   const clamp = x => Math.max(0, Math.min(1, x));
   const easeOut = x => 1 - Math.pow(1 - x, 3);
   const easeInOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-  const J = el => (k) => JSON.parse(el.dataset[k]);
+  const easeBack = x => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
 
   function interp(keys, t) {
+    const pad = k => [0, 0, 0, 1, 0, 0, 0].map((v, i) => k[i] ?? v);
+    keys = keys.map(pad);
     if (t <= keys[0][0]) return keys[0].slice(1);
-    for (let i = 1; i < keys.length; i++) {
-      if (t <= keys[i][0]) {
-        const [t0, ...a] = keys[i - 1], [t1, ...b] = keys[i];
-        const p = easeInOut((t - t0) / (t1 - t0));
-        return a.map((v, j) => v + (b[j] - v) * p);
-      }
+    for (let i = 1; i < keys.length; i++) if (t <= keys[i][0]) {
+      const [t0, ...a] = keys[i - 1], [t1, ...b] = keys[i], p = easeInOut((t - t0) / (t1 - t0));
+      return a.map((v, j) => v + (b[j] - v) * p);
     }
     return keys[keys.length - 1].slice(1);
   }
 
   function render(t) {
     document.querySelectorAll(".scene").forEach(el => {
-      const a = +el.dataset.in, b = +el.dataset.out;
-      el.style.opacity = Math.min(clamp((t - a) / 0.25), clamp((b - t) / 0.25));
+      el.style.opacity = t >= +el.dataset.in && t < +el.dataset.out ? 1 : 0;
     });
-    document.querySelectorAll("[data-cam]").forEach(el => {
-      const [cx, cy, s] = interp(JSON.parse(el.dataset.cam), t);
-      el.style.transform = `translate(${960 - cx * s}px, ${540 - cy * s}px) scale(${s})`;
-    });
-    document.querySelectorAll(".stage [data-in], .stage [data-out]").forEach(el => {
-      if (el.classList.contains("cursor")) return;
+    const sel = ".scene [data-in], .scene [data-out], .scene [data-tf], .scene [data-drift], .scene [data-orbit]";
+    document.querySelectorAll(sel).forEach(el => {
       const a = el.dataset.in ? +el.dataset.in : -1e9, b = el.dataset.out ? +el.dataset.out : 1e9;
-      const fin = clamp((t - a) / 0.4), fout = clamp((b - t) / 0.3);
-      el.style.opacity = Math.min(easeOut(fin), easeOut(fout));
-      const y = (1 - easeOut(fin)) * 26 - (1 - easeOut(fout)) * 16;
-      const base = el.dataset.center ? "translateX(-50%) " : "";
-      el.style.transform = `${base}translateY(${y}px) scale(${0.97 + 0.03 * easeOut(fin)})`;
+      const fx = el.dataset.fx || "slide";
+      const pin = clamp((t - a) / (fx === "pop" ? 0.45 : 0.32)), pout = clamp((b - t) / 0.18);
+      const op = Math.min(fx === "none" ? (t >= a ? 1 : 0) : easeOut(pin), pout);
+      let tf = "", filter = "";
+      if (el.dataset.tf) {
+        const [x, y, s, rx, ry, rz] = interp(JSON.parse(el.dataset.tf), t);
+        if (el.classList.contains("star")) { el.style.left = x + "px"; el.style.top = y + "px"; tf = `rotate(${rz}deg) scale(${s})`; }
+        else tf = `translate3d(${x}px, ${y}px, 0) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${s})`;
+      }
+      if (el.dataset.drift) {
+        const [dx, dy] = el.dataset.drift.split(",").map(Number), dt = Math.max(0, t - a);
+        tf += ` translate(${dx * dt}px, ${dy * dt}px)`;
+      }
+      if (el.dataset.orbit) {
+        const [cx, cy, rx, ry, per, ph] = el.dataset.orbit.split(",").map(Number);
+        const ang = 2 * Math.PI * (ph + t / per);
+        el.style.left = (cx + rx * Math.cos(ang) - el.offsetWidth / 2) + "px";
+        el.style.top = (cy + ry * Math.sin(ang) - el.offsetHeight / 2) + "px";
+      }
+      if (fx === "blur") {
+        tf += ` scale(${1.18 - 0.18 * easeOut(pin)})`;
+        filter = `blur(${(1 - easeOut(pin)) * 16 + (1 - pout) * 10}px)`;
+      } else if (fx === "pop") {
+        tf += ` scale(${0.5 + 0.5 * easeBack(pin)})`;
+      } else if (fx === "slide") {
+        tf += ` translateY(${(1 - easeOut(pin)) * 40}px)`;
+      }
+      if (el.dataset.in || el.dataset.out) el.style.opacity = op;
+      el.style.transform = tf;
+      if (filter) el.style.filter = filter;
     });
-    document.querySelectorAll("[data-type]").forEach(el => {
-      const chars = Array.from(el.dataset.type), ts = +el.dataset.ts, te = +el.dataset.te;
-      const p = clamp((t - ts) / (te - ts));
-      el.textContent = chars.slice(0, Math.round(p * chars.length)).join("");
-      const typing = p > 0 && p < 1, waiting = t >= te && t < +el.dataset.caretUntil && Math.floor(t * 2.6) % 2 === 0;
-      if (t >= ts - 0.05 && (typing || waiting)) { const c = document.createElement("span"); c.className = "caret"; el.append(c); }
+    document.querySelectorAll("[data-seq]").forEach(el => {
+      const steps = JSON.parse(el.dataset.seq);
+      let text = "";
+      for (const [t0, t1, from, to] of steps) if (t >= t0) {
+        const p = clamp((t - t0) / (t1 - t0)), src = Array.from(from === "" ? to : from);
+        text = (from === "" ? src.slice(0, Math.round(p * src.length)) : src.slice(0, Math.round((1 - p) * src.length))).join("");
+      }
+      const g = t >= +el.dataset.gradFrom;
+      el.className = g ? "grad" : "";
+      el.textContent = text;
+      const caret = el.nextElementSibling;
+      const active = steps.some(([t0, t1]) => t >= t0 && t <= t1);
+      caret.style.background = g ? "#FF7A45" : "#17141C";
+      caret.style.opacity = active || Math.floor(t * 2.6) % 2 === 0 ? 1 : 0;
     });
-    document.querySelectorAll(".cursor").forEach(el => {
-      const path = JSON.parse(el.dataset.path);
-      const parent = el.parentElement.getBoundingClientRect ? el.parentElement : null;
-      const [x, y] = interp(path, t);
-      // path is in stage coordinates; convert to the card's local space when nested in a card
-      const ox = el.parentElement.offsetLeft || 0, oy = el.parentElement.offsetTop || 0;
-      el.style.left = (x - ox - 6) + "px"; el.style.top = (y - oy - 4) + "px";
-      const clicks = JSON.parse(el.dataset.clicks || "[]");
-      const press = clicks.some(c => t >= c - 0.06 && t < c + 0.12);
-      const vis = Math.min(clamp((t - path[0][0]) / 0.25), el.dataset.out ? clamp((+el.dataset.out - t) / 0.25) : 1);
-      el.style.opacity = vis;
-      el.style.transform = `scale(${press ? 0.82 : 1})`;
+    document.querySelectorAll("[data-count]").forEach(el => {
+      const [from, to, start, dur, suffix] = el.dataset.count.split(",");
+      const p = easeOut(clamp((t - +start) / +dur));
+      el.textContent = "+" + Math.round(+from + (+to - +from) * p) + suffix;
     });
-    document.querySelectorAll("[data-press]").forEach(el => {
-      const d = t - +el.dataset.press;
-      const k = d >= -0.04 && d < 0.16 ? 0.88 : 1;
-      el.style.transform = `scale(${k})`;
-      el.style.filter = d >= -0.04 && d < 0.16 ? "brightness(0.85)" : "";
-    });
-    document.querySelectorAll("[data-swap]").forEach(el => {
-      el.textContent = t >= +el.dataset.swap ? el.dataset.b : el.dataset.a;
-    });
-    document.querySelectorAll("[data-bar]").forEach(el => {
-      const p = easeOut(clamp((t - +el.dataset.bs) / +el.dataset.bd));
-      el.style.width = (+el.dataset.bar * p) + "%";
-      el.textContent = p > 0.25 ? Math.round(+el.dataset.count * p) : "";
-    });
-    document.querySelectorAll("[data-spin]").forEach(el => {
-      const dt = Math.max(0, t - +el.dataset.spin), verbs = JSON.parse(el.dataset.verbs);
-      el.textContent = GLYPHS[Math.floor(dt / 0.1) % GLYPHS.length];
-      el.nextElementSibling.textContent = verbs[Math.floor(dt / 0.85) % verbs.length] + "…";
-    });
-    document.querySelectorAll("[data-tips]").forEach(el => {
-      const dt = Math.max(0, t - +el.dataset.tips);
-      const [w, rest] = TIPS[Math.floor(dt / 0.85) % TIPS.length];
-      el.innerHTML = `C1 · <b>${w}</b> ${rest}`;
-    });
-    document.getElementById("fade").style.opacity = clamp((t - (DURATION - 1.2)) / 1.0);
+    let f = 0;
+    for (const ft of FLASHES) { const d = t - ft; if (d > -0.08 && d < 0.35) f = Math.max(f, d < 0 ? (d + 0.08) / 0.08 : 1 - d / 0.35); }
+    document.getElementById("flash").style.opacity = f * 0.9;
+    document.getElementById("fade").style.opacity = clamp((t - (DURATION - 1.3)) / 1.1);
   }
   window.render = render;
   window.DURATION = DURATION;
