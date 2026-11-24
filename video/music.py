@@ -8,6 +8,7 @@ land on the video's scene changes (video runs at 1.5x the 63 s scene timeline):
   7.5-28.1 s    eighth-note arpeggio, bass, kick    (demos)
   28.1-37.5 s   peak: strings, octave lifts, 4-on-the-floor kick (numbers, spinner)
   37.5-42 s     final chord, drums stop             (logo + install)
+Plus soft click sounds at the cursor clicks.
 Usage: python3 music.py [out.wav]
 """
 
@@ -145,6 +146,20 @@ while t < END - 1e-6:
 # Final chord as the logo lands.
 for k, m in enumerate(FINAL):
     add(piano(m, length=4.5, vel=0.24), END + k * 0.025, (k - 3) * 0.08)
+
+# Soft UI click sounds where the cursor clicks in the video.
+CLICKS = [6.6, 14.85, 19.9, 39.75]
+
+
+def click():
+    t = np.arange(int(SR * 0.05)) / SR
+    body = np.sin(2 * np.pi * 2600 * t) * np.exp(-t * 160)
+    snap = rng.standard_normal(len(t)) * np.exp(-t * 600) * 0.5
+    return 0.22 * (body + snap)
+
+
+for c in CLICKS:
+    add(click(), c, 0.1)
 
 # Reverb (FFT convolution with decaying stereo noise).
 ir_len = int(SR * 2.2)
