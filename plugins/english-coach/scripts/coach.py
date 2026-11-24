@@ -20,12 +20,36 @@ LEVELS = ("B2", "C1", "C2")
 UNCLEAR = ("rewrite", "tip")
 MARKER = "en:"
 MIN_WORDS = 3  # 1-2 word replies like "ok", "go ahead" are skipped
-SKIP_PREFIXES = ("/", "*", "#", "<")  # commands, bypass, memory, harness messages
+MIN_CHARS = 6  # same idea for languages written without spaces ("はい", "好的继续")
+SKIP_PREFIXES = ("/", "*", "#")  # commands, bypass, memory
+# Harness messages wrap the whole prompt in hyphenated tags, e.g.
+# <task-notification>...</task-notification>. A prompt like "<div> is broken" is real.
+HARNESS_MESSAGE = re.compile(r"<[a-z]+(?:-[a-z]+)+\b[^>]*>.*</[a-z]+(?:-[a-z]+)+>", re.DOTALL)
 
+WORD = re.compile(r"[^\W\d_]+")
 VIETNAMESE_CHARS = re.compile(
     "[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]",
     re.IGNORECASE,
 )
+# Common Vietnamese words typed without accents ("sua loi dang nhap").
+# Words that are also common in English or code (the, can, do, day, them, roi, len...) are left out.
+UNACCENTED_VIETNAMESE = frozenset("""
+    khong duoc cua nhung voi giup sua loi dang nhap minh toi lam nay cai nao gi ve va
+    cho trong mot cac nhieu neu thi la tao xoa chay kiem viec phai muon biet hieu giai
+    thich ngan gon khac nhau giua tieng viet dung sai chua xong ghi bao gio sao vay nhe
+    nha oi hien trang giao dien chuc nang tai xuong truoc sau nguoi nen
+""".split())
+
+
+def char_range(first, last):
+    return re.compile(f"[{chr(first)}-{chr(last)}]")
+
+
+KANA = char_range(0x3040, 0x30FF)
+HAN = char_range(0x4E00, 0x9FFF)
+HANGUL = char_range(0xAC00, 0xD7AF)
+THAI = char_range(0x0E00, 0x0E7F)
+SPACELESS = ("Chinese", "Japanese", "Thai")
 
 
 def setting(name, allowed, default):
@@ -36,9 +60,33 @@ def setting(name, allowed, default):
     return default
 
 
-def build_instruction(level, vietnamese, unclear, marker):
-    if vietnamese:
-        english = (f"1. 📝 English: the prompt is in Vietnamese. Show a ```diff "
+def detect_language(text):
+    """Name of the prompt's main language when it is not English, else None.
+
+    A few foreign words in an English prompt ("rename the biến count") stay English:
+    the foreign part must be at least half of the text.
+    """
+    letters = sum(1 for c in text if c.isalpha())
+    if not letters:
+        return None
+    cjk = len(KANA.findall(text)) + len(HAN.findall(text))
+    if cjk * 2 >= letters:
+        return "Japanese" if KANA.search(text) else "Chinese"
+    if len(HANGUL.findall(text)) * 2 >= letters:
+        return "Korean"
+    if len(THAI.findall(text)) * 2 >= letters:
+        return "Thai"
+    words = WORD.findall(text)
+    accented = sum(1 for w in words if VIETNAMESE_CHARS.search(w))
+    plain = sum(1 for w in words if w.lower() in UNACCENTED_VIETNAMESE)
+    if (accented or plain >= 2) and (accented + plain) * 2 >= len(words):
+        return "Vietnamese"
+    return None
+
+
+def build_instruction(level, language, unclear, marker):
+    if language:
+        english = (f"1. 📝 English: the prompt is in {language}. Show a ```diff "
                    f"(- original, + natural {level} English version), then ≤2 notes on key words.")
     else:
         english = ("1. 📝 English: only if there are mistakes, a ```diff (- original, "
@@ -82,17 +130,20 @@ def main():
         if not text.lower().startswith(MARKER):
             return
         text = text[len(MARKER):].strip()
-    if not text or text.startswith(SKIP_PREFIXES):
+    if not text or text.startswith(SKIP_PREFIXES) or HARNESS_MESSAGE.fullmatch(text):
         return
 
-    vietnamese = bool(VIETNAMESE_CHARS.search(text))
-    if not vietnamese and len(text.split()) < MIN_WORDS:
+    language = detect_language(text)
+    if language in SPACELESS:
+        if len("".join(text.split())) < MIN_CHARS:
+            return
+    elif language != "Vietnamese" and len(text.split()) < MIN_WORDS:
         return
 
     print(json.dumps({
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
-            "additionalContext": build_instruction(level, vietnamese, unclear, mode == "marker"),
+            "additionalContext": build_instruction(level, language, unclear, mode == "marker"),
         }
     }, ensure_ascii=False))
 

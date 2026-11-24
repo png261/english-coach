@@ -8,7 +8,7 @@ As developers, we now spend hours every day writing to Claude and other AI agent
 
 English Coach is a Claude Code plugin that does exactly that. Before Claude does your task, it coaches you briefly on the prompt you just wrote:
 
-- **📝 English**: a diff of your prompt (original → corrected, natural English) with up to 3 one-line notes. Vietnamese prompts get a natural English version.
+- **📝 English**: a diff of your prompt (original → corrected, natural English) with up to 3 one-line notes. Prompts in Vietnamese (with or without accents), Chinese, Japanese, Korean or Thai get a natural English version. A few foreign words in an English prompt don't count.
 - **⬆️ Level-up**: at most one more precise word or phrase for your target level (default **C1**), only when it is clearly better.
 - **💡 Prompt tip**: at most one tip, only when a missing goal, context, "done when" or constraint would change the result.
 - **⚠️ Too vague?** Claude doesn't start. It shows what's missing and asks you to rewrite the prompt yourself.
@@ -122,7 +122,7 @@ All optional. Add them to the `env` block of `~/.claude/settings.json`:
 
 Turn it off for one session: `ENGLISH_COACH=off claude`
 
-**Always skipped (0 tokens):** slash commands (`/…`), prompts starting with `*` (bypass) or `#`, system messages, and 1–2 word replies like "ok" or "go ahead".
+**Always skipped (0 tokens):** slash commands (`/…`), prompts starting with `*` (bypass) or `#`, system messages, and 1–2 word replies like "ok" or "go ahead" (or under 6 characters in Chinese, Japanese or Thai, like "はい").
 
 ## Cost and speed
 
