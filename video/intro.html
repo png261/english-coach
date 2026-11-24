@@ -190,7 +190,9 @@
 <div class="fade" id="fade"></div>
 
 <script>
-  const DURATION = 63;
+  const SCENE_LENGTH = 63;           // timeline below is written in scene seconds
+  const SPEED = 1.5;                 // playback speed: 63 s of scenes -> 42 s video
+  const DURATION = SCENE_LENGTH / SPEED;
   const VERBS = ["Scrutinizing", "Deliberating", "Pinpointing", "Corroborating"];
   const TIPS = [
     ['mitigate', '(v): make less serious. "This patch mitigates the risk of data loss."'],
@@ -202,12 +204,15 @@
   const clamp = x => Math.max(0, Math.min(1, x));
   const ease = x => 1 - Math.pow(1 - x, 3);
 
-  function render(t) {
+  function render(realT) {
+    const t = realT * SPEED;
     document.querySelectorAll("[data-in]").forEach(el => {
       const a = +el.dataset.in, b = el.dataset.out ? +el.dataset.out : 1e9;
-      const fin = clamp((t - a) / 0.7), fout = clamp((b - t) / 0.5);
-      el.style.opacity = Math.min(ease(fin), fout);
-      el.style.transform = `translateY(${(1 - ease(fin)) * 22}px)`;
+      const fin = clamp((t - a) / 0.55), fout = clamp((b - t) / 0.45);
+      el.style.opacity = Math.min(ease(fin), ease(fout));
+      const y = (1 - ease(fin)) * 46 - (1 - ease(fout)) * 30;
+      const sc = 0.965 + 0.035 * ease(fin);
+      el.style.transform = `translateY(${y}px) scale(${sc})`;
     });
     document.querySelectorAll("[data-type]").forEach(el => {
       const chars = Array.from(el.dataset.type);
@@ -231,7 +236,7 @@
       const [w, rest] = TIPS[Math.floor(dt / 0.95) % TIPS.length];
       el.innerHTML = `C1 · <b>${w}</b> ${rest}`;
     });
-    document.getElementById("fade").style.opacity = clamp((t - (DURATION - 1.2)) / 1.0);
+    document.getElementById("fade").style.opacity = clamp((t - (SCENE_LENGTH - 1.5)) / 1.2);
   }
   window.render = render;
   window.DURATION = DURATION;

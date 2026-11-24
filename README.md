@@ -2,7 +2,7 @@
 
 **Turn your time with Claude Code into English practice.**
 
-[![Watch the 1-minute intro](video/poster.png)](https://github.com/png261/english-coach/blob/main/video/english-coach-intro.mp4)
+[![Watch the 40-second intro](video/poster.png)](https://github.com/png261/english-coach/blob/main/video/english-coach-intro.mp4)
 
 As developers, we now spend hours every day writing to Claude and other AI agents. That's more English writing than most English classes ever ask for. So why not turn that time into practice, and make the agent our English tutor?
 
