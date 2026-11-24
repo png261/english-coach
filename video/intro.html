@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>English Coach: intro</title>
+<style>
+  :root {
+    --bg: #F4F0E8; --ink: #1D1C1A; --muted: #6E6A62; --accent: #B8603E;
+    --term: #1C1B19; --term-ink: #E9E5DC; --term-dim: #8F8A80;
+    --del: #E8837F; --del-bg: rgba(232,131,127,.12); --add: #86C79A; --add-bg: rgba(134,199,154,.12);
+    --serif: "Charter", "Iowan Old Style", Georgia, serif;
+    --sans: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); }
+  body { font-family: var(--sans); -webkit-font-smoothing: antialiased;
+         background: radial-gradient(ellipse at 50% 40%, #FAF7F1 0%, var(--bg) 70%); }
+  .scene { position: absolute; inset: 0; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; gap: 36px; opacity: 0; }
+  .headline { font-family: var(--serif); font-size: 88px; line-height: 1.12; letter-spacing: -0.015em;
+              text-align: center; font-weight: 400; }
+  .headline em { font-style: italic; color: var(--accent); }
+  .title { font-family: var(--serif); font-size: 150px; letter-spacing: -0.03em; font-weight: 400; }
+  .subtitle { font-size: 38px; color: var(--muted); letter-spacing: -0.005em; }
+  .caption { font-family: var(--serif); font-size: 56px; letter-spacing: -0.01em; text-align: center; }
+  .caption em { font-style: italic; color: var(--accent); }
+
+  .term { width: 1480px; background: var(--term); border-radius: 20px; color: var(--term-ink);
+          box-shadow: 0 40px 90px rgba(40,30,20,.22), 0 8px 24px rgba(40,30,20,.12); overflow: hidden; }
+  .term-bar { height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 22px;
+              background: #262522; }
+  .term-bar i { width: 14px; height: 14px; border-radius: 50%; background: #4A4843; display: block; }
+  .term-body { padding: 34px 44px 40px; font-family: var(--mono); font-size: 27px; line-height: 1.6;
+               min-height: 300px; }
+  .prompt { color: var(--term-ink); white-space: pre-wrap; }
+  .prompt b { color: var(--accent); font-weight: 600; }
+  .caret { display: inline-block; width: 13px; height: 30px; background: var(--term-ink);
+           vertical-align: -5px; margin-left: 2px; }
+  .out { margin-top: 22px; }
+  .out > div { white-space: pre-wrap; }
+  .h { font-family: var(--sans); font-weight: 600; font-size: 27px; margin: 4px 0 6px; }
+  .del { color: var(--del); background: var(--del-bg); padding: 0 10px; border-radius: 6px; }
+  .add { color: var(--add); background: var(--add-bg); padding: 0 10px; border-radius: 6px; margin-top: 6px; }
+  .note { font-family: var(--sans); font-size: 26px; color: #CFCAC0; margin-top: 10px; }
+  .note b { color: var(--term-ink); font-weight: 600; }
+  .lvl { font-family: var(--sans); font-size: 26px; margin-top: 18px; color: #CFCAC0; }
+  .lvl b { color: #E7B77C; }
+  .warn b { color: #F0C674; }
+
+  .bars { width: 1300px; display: flex; flex-direction: column; gap: 34px; }
+  .bar-row { display: grid; grid-template-columns: 260px 1fr; align-items: center; gap: 28px; }
+  .bar-label { font-size: 34px; color: var(--muted); text-align: right; }
+  .bar-track { height: 74px; position: relative; }
+  .bar { height: 74px; border-radius: 12px; display: flex; align-items: center; justify-content: flex-end;
+         padding-right: 22px; font-family: var(--mono); font-size: 30px; color: #fff; width: 0; }
+  .bar.vi { background: var(--accent); }
+  .bar.en { background: #3F4B44; }
+  .big-stat { font-family: var(--serif); font-size: 74px; letter-spacing: -0.015em; }
+  .big-stat em { font-style: italic; color: var(--accent); }
+  .chips { display: flex; gap: 22px; }
+  .chip { font-size: 30px; padding: 18px 30px; border-radius: 999px; background: #fff;
+          box-shadow: 0 6px 20px rgba(40,30,20,.08); }
+  .footnote { font-size: 24px; color: var(--muted); }
+
+  .spin-line { font-family: var(--mono); font-size: 34px; color: var(--accent); }
+  .spin-tip { font-family: var(--sans); font-size: 28px; color: #CFCAC0; margin-top: 14px; }
+  .spin-tip b { color: var(--term-ink); }
+
+  .cmd { font-family: var(--mono); font-size: 32px; background: var(--term); color: var(--term-ink);
+         padding: 30px 44px; border-radius: 18px; line-height: 1.7;
+         box-shadow: 0 30px 70px rgba(40,30,20,.18); }
+  .cmd span { color: var(--term-dim); }
+  .url { font-size: 34px; color: var(--muted); letter-spacing: .01em; }
+  .fade { position: absolute; inset: 0; background: var(--bg); opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<!-- 1. Hook -->
+<section class="scene" data-in="0.3" data-out="5.6">
+  <div class="headline" data-in="0.5">Developers now spend hours a day</div>
+  <div class="headline" data-in="1.4">writing to <em>AI agents.</em></div>
+</section>
+
+<!-- 2. Question + title -->
+<section class="scene" data-in="6.0" data-out="9.2">
+  <div class="headline" data-in="6.2">What if that time</div>
+  <div class="headline" data-in="7.0">made your <em>English</em> better?</div>
+</section>
+<section class="scene" data-in="9.6" data-out="12.4">
+  <div class="title" data-in="9.7">English Coach</div>
+  <div class="subtitle" data-in="10.5">Learn English while you work in Claude Code.</div>
+</section>
+
+<!-- 3. Demo: English mistakes -->
+<section class="scene" data-in="12.8" data-out="25.6">
+  <div class="caption" data-in="12.9">Every prompt becomes a <em>short lesson.</em></div>
+  <div class="term" data-in="13.2">
+    <div class="term-bar"><i></i><i></i><i></i></div>
+    <div class="term-body">
+      <div class="prompt"><b>&gt; </b><span data-type="please explain me shortly what is a race condition" data-ts="13.9" data-te="16.4" data-caret-until="16.9"></span></div>
+      <div class="out">
+        <div class="h" data-in="17.1">📝 English</div>
+        <div class="del" data-in="17.6">- please explain me shortly what is a race condition</div>
+        <div class="add" data-in="18.2">+ Please briefly explain to me what a race condition is.</div>
+        <div class="note" data-in="19.2">• <b>explain to me</b>: "explain" needs "to" before the person.</div>
+        <div class="note" data-in="19.9">• <b>what a race condition is</b>: statement word order inside a question.</div>
+        <div class="note" data-in="20.6">• <b>briefly</b>, not "shortly", which means "soon".</div>
+        <div class="lvl" data-in="21.8"><b>⬆️ C1:</b> "Could you give me a <b>concise</b> explanation of race conditions?"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Demo: Vietnamese -->
+<section class="scene" data-in="26.0" data-out="35.6">
+  <div class="caption" data-in="26.1">Think in Vietnamese. <em>Learn the English.</em></div>
+  <div class="term" data-in="26.4">
+    <div class="term-bar"><i></i><i></i><i></i></div>
+    <div class="term-body">
+      <div class="prompt"><b>&gt; </b><span data-type="giải thích ngắn gọn sự khác nhau giữa let và const trong javascript" data-ts="27.0" data-te="29.4" data-caret-until="29.9"></span></div>
+      <div class="out">
+        <div class="h" data-in="30.1">📝 English</div>
+        <div class="del" data-in="30.5">- giải thích ngắn gọn sự khác nhau giữa let và const trong javascript</div>
+        <div class="add" data-in="31.1">+ Briefly explain the difference between let and const in JavaScript.</div>
+        <div class="note" data-in="32.0">• <b>briefly</b>: fits "ngắn gọn" better than "shortly", which means "soon".</div>
+        <div class="note" data-in="32.7">• <b>the difference between X and Y</b>: the usual way to compare two things.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Demo: vague prompt -->
+<section class="scene" data-in="36.0" data-out="43.6">
+  <div class="caption" data-in="36.1">Better prompts, <em>not just better English.</em></div>
+  <div class="term" data-in="36.4">
+    <div class="term-bar"><i></i><i></i><i></i></div>
+    <div class="term-body">
+      <div class="prompt"><b>&gt; </b><span data-type="fix the bug" data-ts="37.0" data-te="37.7" data-caret-until="38.2"></span></div>
+      <div class="out">
+        <div class="h warn" data-in="38.4"><b>⚠️ Your request needs more detail.</b></div>
+        <div class="note" data-in="39.1">Missing: <b>which bug</b>, <b>where</b>, <b>how to reproduce it</b>, and <b>when it's done</b>.</div>
+        <div class="note" data-in="39.9">✍️ Please rewrite it yourself, for example:</div>
+        <div class="note" data-in="40.6">"Login returns 401 with a correct password. Expected: redirect to /home."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Numbers -->
+<section class="scene" data-in="44.0" data-out="51.6">
+  <div class="big-stat" data-in="44.1">Vietnamese uses <em>77% more tokens</em> than English.</div>
+  <div class="bars" data-in="44.5">
+    <div class="bar-row"><div class="bar-label">Vietnamese</div>
+      <div class="bar-track"><div class="bar vi" data-bar="100" data-count="673" data-bs="44.9" data-bd="1.6"></div></div></div>
+    <div class="bar-row"><div class="bar-label">English</div>
+      <div class="bar-track"><div class="bar en" data-bar="56.6" data-count="381" data-bs="45.2" data-bd="1.6"></div></div></div>
+  </div>
+  <div class="footnote" data-in="46.4">Same four developer texts, measured on Claude Opus 5.5 (tokens).</div>
+  <div class="chips">
+    <div class="chip" data-in="47.8">No extra model call</div>
+    <div class="chip" data-in="48.3">0 s waiting</div>
+    <div class="chip" data-in="48.8">~220 tokens per prompt</div>
+  </div>
+</section>
+
+<!-- 7. Spinner -->
+<section class="scene" data-in="52.0" data-out="55.8">
+  <div class="caption" data-in="52.1">Even the waiting time <em>teaches.</em></div>
+  <div class="term" data-in="52.4" style="width: 1300px">
+    <div class="term-bar"><i></i><i></i><i></i></div>
+    <div class="term-body" style="min-height: 180px">
+      <div class="spin-line" data-spin="52.6"></div>
+      <div class="spin-tip" data-tips="52.6"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Call to action -->
+<section class="scene" data-in="56.2" data-out="99">
+  <div class="title" data-in="56.3" style="font-size: 120px">English Coach</div>
+  <div class="cmd" data-in="57.1">
+    <div><span>&gt;</span> /plugin marketplace add png261/english-coach</div>
+    <div><span>&gt;</span> /plugin install english-coach@english-coach</div>
+  </div>
+  <div class="url" data-in="58.0">github.com/png261/english-coach</div>
+</section>
+
+<div class="fade" id="fade"></div>
+
+<script>
+  const DURATION = 63;
+  const VERBS = ["Scrutinizing", "Deliberating", "Pinpointing", "Corroborating"];
+  const TIPS = [
+    ['mitigate', '(v): make less serious. "This patch mitigates the risk of data loss."'],
+    ['ambiguous', '(adj): open to more than one meaning. "The spec is ambiguous."'],
+    ['bottleneck', '(n): the slowest part. "The database query is the bottleneck."'],
+    ['caveat', '(n): a warning to keep in mind. "One caveat: this only works on macOS."'],
+  ];
+  const GLYPHS = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✳", "✢"];
+  const clamp = x => Math.max(0, Math.min(1, x));
+  const ease = x => 1 - Math.pow(1 - x, 3);
+
+  function render(t) {
+    document.querySelectorAll("[data-in]").forEach(el => {
+      const a = +el.dataset.in, b = el.dataset.out ? +el.dataset.out : 1e9;
+      const fin = clamp((t - a) / 0.7), fout = clamp((b - t) / 0.5);
+      el.style.opacity = Math.min(ease(fin), fout);
+      el.style.transform = `translateY(${(1 - ease(fin)) * 22}px)`;
+    });
+    document.querySelectorAll("[data-type]").forEach(el => {
+      const chars = Array.from(el.dataset.type);
+      const p = clamp((t - +el.dataset.ts) / (+el.dataset.te - +el.dataset.ts));
+      const showCaret = t < +el.dataset.caretUntil && Math.floor(t * 2.4) % 2 === 0 || (p > 0 && p < 1);
+      el.innerHTML = "";
+      el.append(chars.slice(0, Math.round(p * chars.length)).join(""));
+      if (showCaret) { const c = document.createElement("span"); c.className = "caret"; el.append(c); }
+    });
+    document.querySelectorAll("[data-bar]").forEach(el => {
+      const p = ease(clamp((t - +el.dataset.bs) / +el.dataset.bd));
+      el.style.width = (+el.dataset.bar * p) + "%";
+      el.textContent = p > 0.25 ? Math.round(+el.dataset.count * p) : "";
+    });
+    document.querySelectorAll("[data-spin]").forEach(el => {
+      const dt = Math.max(0, t - +el.dataset.spin);
+      el.textContent = `${GLYPHS[Math.floor(dt / 0.11) % GLYPHS.length]} ${VERBS[Math.floor(dt / 0.95) % VERBS.length]}…`;
+    });
+    document.querySelectorAll("[data-tips]").forEach(el => {
+      const dt = Math.max(0, t - +el.dataset.tips);
+      const [w, rest] = TIPS[Math.floor(dt / 0.95) % TIPS.length];
+      el.innerHTML = `C1 · <b>${w}</b> ${rest}`;
+    });
+    document.getElementById("fade").style.opacity = clamp((t - (DURATION - 1.2)) / 1.0);
+  }
+  window.render = render;
+  window.DURATION = DURATION;
+  render(0);
+</script>
+</body>
+</html>

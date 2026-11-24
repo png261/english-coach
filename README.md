@@ -2,6 +2,8 @@
 
 **Turn your time with Claude Code into English practice.**
 
+[![Watch the 1-minute intro](video/poster.png)](https://github.com/png261/english-coach/raw/main/video/english-coach-intro.mp4)
+
 As developers, we now spend hours every day writing to Claude and other AI agents. That's more English writing than most English classes ever ask for. So why not turn that time into practice, and make the agent our English tutor?
 
 English Coach is a Claude Code plugin that does exactly that. Before Claude does your task, it coaches you briefly on the prompt you just wrote:
@@ -136,6 +138,13 @@ A `UserPromptSubmit` hook ([`coach.py`](plugins/english-coach/scripts/coach.py))
 ```
 python3 -m unittest discover -s tests          # unit tests
 claude --plugin-dir ./plugins/english-coach    # try it without installing
+```
+
+The intro video is made from code in [`video/`](video): an animated HTML page rendered frame by frame with Playwright, plus original music composed in Python. Rebuild it with:
+
+```
+cd video && npm install && python3 music.py music.wav && node render.mjs video-only.mp4
+ffmpeg -i video-only.mp4 -i music.wav -c:v copy -c:a aac -b:a 192k -shortest english-coach-intro.mp4
 ```
 
 ## Tiếng Việt
