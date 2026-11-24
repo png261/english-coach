@@ -1,0 +1,19 @@
+{
+  "name": "better-prompt",
+  "displayName": "Better Prompt",
+  "description": "Learn English and better prompting while you work: an English diff, one level-up word, and one prompt tip on each prompt. Vietnamese prompts get a natural English version.",
+  "version": "0.1.0",
+  "author": {
+    "name": "png261"
+  },
+  "homepage": "https://github.com/png261/better-prompt",
+  "repository": "https://github.com/png261/better-prompt",
+  "license": "MIT",
+  "keywords": [
+    "english",
+    "learning",
+    "prompt",
+    "vietnamese",
+    "hook"
+  ]
+}

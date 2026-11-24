@@ -1,0 +1,19 @@
+{
+  "description": "Better Prompt adds a short English-coaching instruction to each prompt. It calls no model and adds no waiting.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/coach.py"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
